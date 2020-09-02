@@ -1,0 +1,559 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500&display=swap');
+
+/*
+======================================
+Defualt Styling
+======================================
+*/
+
+*, body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    transition: 0.8s;
+}
+
+input:focus, button:focus, select:focus {
+    outline: none;
+}
+
+
+/*
+======================================
+Scroll Bar
+======================================
+*/
+
+::-webkit-scrollbar {
+    width: 12px;
+    background: #00000000;
+}
+
+::-webkit-scrollbar-track {
+    background: #00000000;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(2, 2, 2, 0.212);
+    border-radius: 3px;
+}
+  
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.377);
+}
+
+::-webkit-scrollbar-corner {
+    background: rgba(0,0,0,0);
+}
+
+@keyframes bg-animation {
+    0% {
+        background-position: center 100%;
+    }
+
+    50% {
+        background-position: center 90%
+    }
+
+    100% {
+        background-position: center 100%;
+    }
+}
+
+/*
+======================================
+Main Divs Styles
+======================================
+*/
+
+.Pokedex {
+    width: 100%;
+    height: 100vh;
+    background-image: url('https://i.kym-cdn.com/photos/images/original/000/911/062/0ae.png');
+    background-position: 50% 50%;
+    animation: bg-animation;
+    animation-duration: 8s;
+    animation-iteration-count: infinite;
+    display: grid;
+    grid-template-rows: 1fr 14fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.Pokedex .loading, .Pokedex .error {
+    background: rgba(0, 0, 0, 0.822);
+    grid-column: span 4;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Rajdhani', sans-serif;
+    color: white;
+    font-size: 22px;
+}
+
+.Pokedex .error h1 {
+    color: rgb(255, 29, 29);
+}
+
+.Pokedex .searchBarArea {
+    display: flex;
+    flex-wrap: wrap;
+    grid-column: span 4;
+    grid-row: 1;
+    width: 100%;
+    height: 100%;
+    background: #141414;
+    justify-content: center;
+    align-content: center;
+}
+
+.Pokedex .moveList {
+    grid-row: 2;
+    grid-column: 4;
+    width: 100%;
+    height: calc(100% - 1px);
+    background: #1f1f1f;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.Pokedex .pokemonBasic {
+    grid-row: 2;
+    grid-column: 1;
+    background: #1f1f1f;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.Pokedex .pokemonOtherInfo {
+    grid-row: 2;
+    grid-column: span 2;
+    overflow: hidden scroll;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: calc(100vw / 4.5);
+}
+
+/*
+======================================
+Search Bar Area Styles
+======================================
+*/
+
+.Pokedex .searchBarArea input {
+    width: 515px;
+    height: 25px;
+    background: #1a1a1a;
+    border: 1px solid red;
+    border-radius: 15px;
+    margin-right: 4px;
+    color: whitesmoke;
+    padding-left: 15px;
+}
+
+.Pokedex .searchBarArea button {
+    width: 60px;
+    height: 27px;
+    border-radius: 15px;
+    border: 1px solid red;
+    color: white;
+    background: #1a1a1a;
+    text-align: center;
+}
+
+/*
+======================================
+Pokemon Information Area Styles
+======================================
+*/
+
+.Pokedex .pokemonBasic .pokemonName {
+    width: 100%;
+    height: 50px;
+    background: #1a1a1a;
+    color: antiquewhite;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 4.5vh;
+    text-align: center;
+    height: 6.5%;
+}
+
+.Pokedex .pokemonBasic .flavorTextArea {
+    height: 45%;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+}
+
+.Pokedex .pokemonBasic .flavorTextArea .flavorTexts {
+    background: crimson;
+    overflow: scroll;
+    width: 85%;
+    height: 85%;
+    padding: 15px;
+    border-radius: 10px;
+    color: rgb(194, 194, 194);
+    background: #141414;
+}
+
+.Pokedex .pokemonBasic .flavorTextArea .flavorTexts p {
+    margin-bottom: 32px;
+    margin-top: 10px;
+    font-size: 23px;
+    padding-left: 10px;
+    border-left: 2px solid white;
+    text-align: justify;
+}
+
+.Pokedex .pokemonBasic .imageBox {
+    border: 2px solid red;
+    border-radius: 15px;
+    background: rgb(46, 46, 46);
+    height: 40vh;
+    width: 40vh;
+    max-width: 20vw;
+    max-height: 20vw;
+    box-shadow: 0 0 1em rgba(0, 0, 0, 0.521);
+}
+
+.Pokedex .pokemonBasic .imageBox img {
+    width: 100%;
+    height: 100%;
+}
+
+.Pokedex .pokemonBasic .imageBox .oneType img, .Pokedex .pokemonBasic .imageBox .twoTypes img {
+    width: 10%;
+}
+
+.Pokedex .pokemonBasic .imageBox .twoTypes {
+    width: 100%;
+    position: relative;
+    left: calc(50% - 10%);
+    top: -6%;
+}
+
+.Pokedex .pokemonBasic .imageBox .oneType {
+    width: 100%;
+    position: relative;
+    left: calc(50% - (10% / 2));
+    top: -6%;
+}
+
+/*
+======================================
+Pokemon Move Area Styles
+======================================
+*/
+
+.Pokedex .moveList .moveNavigation {
+    background: #1a1a1a;
+    width: 100%;
+    height: 50px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.Pokedex .moveList .moveNavigation .dropdownInput {
+    width: 90%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.Pokedex .moveList .moveNavigation .dropdownInput label {
+    color: white;
+    padding-top: 0px;
+    font-size: 20px;
+}
+
+.Pokedex .moveList .moveNavigation .dropdownInput select {
+    height: 25px;
+    padding-left: 5px;
+    background: rgb(36, 36, 36);
+    border: 1px solid rgb(168, 168, 168);
+    color: white;
+    border-radius: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px
+}
+
+.Pokedex .moveList .moves {
+    height: calc(100% - 50px);
+    overflow: hidden scroll;
+    width: 100%;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.Pokedex .moveList .moves .moveCategory h2{
+    color: white;
+    text-align: center;
+    font-size: 36px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    margin: 8px;
+    border: 1px solid rgb(151, 151, 151);
+    border-radius: 8px;
+    background: #181818;
+}
+
+.Pokedex .moveList .moves .moveCategory .moveBox {
+    background: rgb(24, 24, 24);
+    border: 1px solid red;
+    font-size: 25px;
+    color: whitesmoke;
+    display: flex;
+    height: 40px;
+    margin: 8px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    padding-bottom: 8px;
+    box-shadow: 0 0 0.4em rgba(0, 0, 0, 0.521);
+}
+
+.Pokedex .moveList .moves .moveCategory .moveBox .levelBox {
+    width: 50px;
+    height: calc(100% + 8px);
+    border-radius: 10px;
+    background: rgb(160, 1, 1);
+}
+
+.Pokedex .moveList .moves .moveCategory .moveBox p {
+    padding-top: 10px;
+    width: 100%;
+    text-align: center;
+}
+
+/*
+======================================
+Pokemon Other Info Styles:
+======================================
+*/
+
+.Pokedex .pokemonOtherInfo .doubleSpace {
+    grid-column: span 2;
+}
+
+.Pokedex .pokemonOtherInfo .evolution {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.Pokedex .pokemonOtherInfo .evolution .navButton, .Pokedex .pokemonOtherInfo .evolutionGuide .navButton {
+    height: 30px;
+    width: 30px;
+    border-radius: 30px;
+    font-family: 'Rajdhani', sans-serif;
+    box-shadow: 0 0 1em rgba(0, 0, 0, 0.521);
+    font-weight: bolder;
+    font-size: 20px;
+}
+
+.Pokedex .pokemonOtherInfo .evolution .navButtonActive, .Pokedex .pokemonOtherInfo .evolutionGuide .navButtonActive {
+    background: rgb(184, 0, 0);
+    color: rgb(182, 182, 182);
+}
+
+.Pokedex .pokemonOtherInfo .evolution .navButtonInactive, .Pokedex .pokemonOtherInfo .evolutionGuide .navButtonInactive {
+    background: rgba(184, 0, 0, 0.247);
+    color: rgba(182, 182, 182, 0.192);
+}
+
+.Pokedex .pokemonOtherInfo .preEvolution, .Pokedex .pokemonOtherInfo .evolution .evolutionContent {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.Pokedex .pokemonOtherInfo .evolution .evolutionContent {
+    width: 60%;
+}
+
+.Pokedex .pokemonOtherInfo .preEvolution .imageBox, .Pokedex .pokemonOtherInfo .evolution .evolutionContent .imageBox{
+    border: 2px solid red;
+    border-radius: 15px;
+    background: rgb(46, 46, 46);
+    height: 60%;
+    width: min-content;
+    box-shadow: 0 0 1em rgba(0, 0, 0, 0.521);
+}
+
+.Pokedex .pokemonOtherInfo .preEvolution .imageBox img, .Pokedex .pokemonOtherInfo .evolution .evolutionContent .imageBox img{
+    height: 100%;
+}
+
+.Pokedex .pokemonOtherInfo .preEvolution h4, .Pokedex .pokemonOtherInfo .evolution .evolutionContent h4 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 30px;
+    color: whitesmoke;
+}
+
+.Pokedex .pokemonOtherInfo .preEvolution button, .Pokedex .pokemonOtherInfo .evolution .evolutionContent button {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    padding-left: 2%;
+    padding-right: 2%;
+    border-radius: 10px;
+    border: 2px solid red;
+    background: rgba(0, 0, 0, 0.397);
+    color: whitesmoke;
+}
+
+.Pokedex .pokemonOtherInfo .evolution .evolutionContent .imageBox {
+    border: 2px solid red;
+    border-radius: 15px;
+    background: rgb(46, 46, 46);
+    height: 60%;
+    width: min-content;
+    box-shadow: 0 0 1em rgba(0, 0, 0, 0.521);
+}
+
+.Pokedex .pokemonOtherInfo .evolutionGuide {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.Pokedex .pokemonOtherInfo .evolutionGuide .evolutionGuideContent {
+    height: 100%;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.Pokedex .pokemonOtherInfo .evolutionGuide .evolutionGuideContent h4 {
+    font-family: 'Rajdhani', sans-serif;
+    color: whitesmoke;
+    font-size: 30px;
+    width: 100%;
+    height: 15%;
+    text-align: center;
+}
+
+.Pokedex .pokemonOtherInfo .evolutionGuide .evolutionGuideContent .evolutionMethods {
+    background: rgba(19, 19, 19, 0.945);
+    height: calc(80% - 30px);
+    width: calc(60% - 20px);
+    color: white;
+    overflow: hidden scroll;
+    padding: 10px;
+    font-size: 24px;
+    text-align: justify;
+    border-radius: 10px;
+}
+
+.Pokedex .pokemonOtherInfo .evolutionGuide .evolutionGuideContent .evolutionMethods p {
+    margin-bottom: 20px;
+    margin-top: 10px;
+    padding-left: 15px;
+    border-left: 2px solid white;
+}
+
+.Pokedex .pokemonOtherInfo .stats {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.Pokedex .pokemonOtherInfo .stats .statsTable {
+    height: 80%;
+    width: 70%;
+}
+
+.Pokedex .pokemonOtherInfo .stats .statsTable th {
+    padding: 0px;
+}
+
+.Pokedex .pokemonOtherInfo .stats .statsTable .statName {
+    text-align: left;
+    color: white;
+    padding-left: 10px;
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
+}
+
+.Pokedex .pokemonOtherInfo .stats .statsTable .statVal {
+    text-align: right;
+    padding-right: 10px;
+    color: white;
+    border-top-right-radius: 14px;
+    border-bottom-right-radius: 14px;
+}
+
+.Pokedex .pokemonOtherInfo .stats .statsTable tr:nth-child(even) {
+    background-color: rgba(20, 20, 20, 0.452);
+}
+
+.Pokedex .pokemonOtherInfo .stats .statsTable tr:nth-child(odd) {
+    background-color: rgba(20, 20, 20, 0.836);
+}
+
+.Pokedex .pokemonOtherInfo .pokemonDetails {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.Pokedex .pokemonOtherInfo .pokemonDetails .detailsTable {
+    height: 80%;
+    width: 75%;
+}
+
+.Pokedex .pokemonOtherInfo .pokemonDetails .detailsTable th {
+    padding: 0px;
+}
+
+.Pokedex .pokemonOtherInfo .pokemonDetails .detailsTable .statName {
+    text-align: left;
+    color: white;
+    padding-left: 10px;
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
+}
+
+.Pokedex .pokemonOtherInfo .pokemonDetails .detailsTable .statVal {
+    text-align: right;
+    padding-right: 10px;
+    color: white;
+    border-top-right-radius: 14px;
+    border-bottom-right-radius: 14px;
+}
+
+.Pokedex .pokemonOtherInfo .pokemonDetails .detailsTable tr:nth-child(even) {
+    background-color: rgba(20, 20, 20, 0.452);
+}
+
+.Pokedex .pokemonOtherInfo .pokemonDetails .detailsTable tr:nth-child(odd) {
+    background-color: rgba(20, 20, 20, 0.836);
+}
