@@ -34,12 +34,10 @@ export function getPokemon(pokemonId, onStart = () => {}, onSuccess = () => {}, 
     .then(([pokemonRes, speciesRes]) => {
         pokemon = pokemonRes.body;
         species = speciesRes.body;
-        console.log(pokemon, species);
         return superagent.get(species.evolution_chain.url);
     })
     .then((res) => {
         let evolutionLine = res.body;
-        console.log({evolutionLine});
         onSuccess(new Pokemon({pokemon, species, evolutionLine}));
     })
     .catch((err) => {

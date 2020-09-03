@@ -54,8 +54,6 @@ export default function Pokedex() {
             set_pokemonInfo(defaultPokemonState);
             set_evolutionNav(0);
 
-            console.log(data);
-
             set_pokemonInfo({ 
                 name: data.getDisplayName(), 
                 image: data.getImage(), 
