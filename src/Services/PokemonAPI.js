@@ -51,22 +51,3 @@ export function getPokemon(pokemonId, onStart = () => {}, onSuccess = () => {}, 
     let rndm = MF.getRandomNumberBetweenRangeInclusive(1, last_pokemon);
     getPokemon(rndm, onSuccess);
 }*/
-
-/*
-function myFunction(onStart, onSuccess, onError) {
-  let content1;
-  let content2;
-  onStart();
-
-  Promise.all(req1(url), re2(url)).then(([req1, req2]) => {
-		content1 = req1.body;
-    content2 = req2.body;
-    
-    return req3(req2.url);
-	}).then((content3) => {
-		onSuccess(new myClass({content1, content2, content3}));
-  }).catch((err) => {
-		onError(err);
-	})
-}
-*/
