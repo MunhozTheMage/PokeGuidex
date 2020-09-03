@@ -29,7 +29,6 @@ export default class Pokemon {
     }
 
     getDisplayName(language = 'en') {
-        console.log(this)
         let name = capitalizeAllWords(replaceAll(this._info.species.name, '-', ' '));
 
         if(language !== 'en') {
