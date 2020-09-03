@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "3b71f9831179373d01000be82ab7e6d3",
+    "revision": "5d6fc8df6ea3ee7a8a3f9ffa7024f579",
     "url": "/PokeGuidex/index.html"
   },
   {
