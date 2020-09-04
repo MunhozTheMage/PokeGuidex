@@ -3,7 +3,7 @@ import './Pokedex.css';
 //================================================================================
 // External:                                                                      
 //================================================================================
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 //================================================================================
 // Components:                                                                    
@@ -18,7 +18,7 @@ import SearchBar from '../Components/SearchBar.js';
 //================================================================================
 // Services:                                                                      
 //================================================================================
-import { getPokemon } from '../Services/PokemonAPI.js';
+import { getPokemon, getNamesList, findPokemon } from '../Services/PokemonAPI.js';
 
 //================================================================================
 // Utils:                                                                         
@@ -39,21 +39,40 @@ export default function Pokedex() {
         stats: [],
         minor: {}
     }
+    const [pokemonNamesList, set_pokemonNamesList] = useState([]);
     const [pokemonInfo, set_pokemonInfo] = useState(defaultPokemonState);
     const [gameSelectValue, set_gameSelectValue] = useState('');
     const [evolutionNav, set_evolutionNav] = useState(0);
-    const [isLoading, set_isLoading] = useState(false);
-    const [hasError, set_hasError] = useState(false);
+    const [isLoading, set_isLoading] = useState(true);
+    const [hasError, set_hasError] = useState({minor: false, major: false});
+
+    useEffect(() => {
+        getNamesList(
+        (list) => {
+            set_pokemonNamesList(list);
+            console.log(list);
+            set_isLoading(false);
+        }, 
+        (err) => {
+            set_isLoading(false);
+            console.log(err);
+            set_hasError({minor: false, major: true});
+        })
+    }, [])
 
     // Called to change the current Pokémon page
     function searchPokemon(searchValue) {
+        let searchId = findPokemon(
+            pokemonNamesList, 
+            replaceAll(searchValue.toLowerCase(), ' ', '-')
+        );
         getPokemon(
-        replaceAll(searchValue.toLowerCase(), ' ', '-'), 
+        searchId, 
         () => {
             // Removes any error status current active and enables
             // the loading screen
             set_isLoading(true);
-            set_hasError(false);
+            set_hasError({...hasError, minor: false});
         }, 
         (data) => {
             // Clear the current Pokémon object and reset the evolution
@@ -96,7 +115,7 @@ export default function Pokedex() {
         (err) => {
             // Finish loading and enables the error screen
             set_isLoading(false);
-            set_hasError(true);
+            set_hasError({...hasError, minor: true});
             console.log(err);
         });
     }
@@ -185,7 +204,7 @@ export default function Pokedex() {
             }
 
             return details_renderInfoBox(
-                true, 
+                true,
                 'Base Stats:',
                 '',
                 content()
@@ -273,7 +292,7 @@ export default function Pokedex() {
                 pokemonInfo.hasPreEvolution,
                 'Evolves From:',
                 !pokemonInfo.hasEvolution ? 'doubleSpace' : '',
-                content()
+                pokemonInfo.hasPreEvolution ? content() : null
             )
         }
 
@@ -326,7 +345,7 @@ export default function Pokedex() {
                 pokemonInfo.hasEvolution,
                 'Evolves To:',
                 !pokemonInfo.hasPreEvolution ? 'doubleSpace' : '',
-                content()
+                pokemonInfo.hasEvolution ? content() : null
             );
         }
 
@@ -378,7 +397,7 @@ export default function Pokedex() {
                 pokemonInfo.hasEvolution,
                 'How to Evolve:',
                 'doubleSpace',
-                content()
+                pokemonInfo.hasEvolution ? content() : null
             );
         }
 
@@ -514,14 +533,14 @@ export default function Pokedex() {
         )
     }
 
-    function pokemonSearchBar(condition) {
+    function pokemonSearchBar(conditionToShow = true, conditionToWork = true) {
         return (
-            condition ?
+            conditionToShow ?
             <div className='searchBarArea'>
                 <SearchBar 
                 label='Type the Pokemon name or number'
                 buttonText="Search"
-                onclick={searchPokemon}
+                onclick={conditionToWork ? searchPokemon : () => {}}
                 />
             </div>
             : null
@@ -537,9 +556,16 @@ export default function Pokedex() {
     }
 
     function error() {
+        let errMessage = "Oops, couldn't find that Pokémon."
+
+        if(hasError.major) {
+            errMessage = "Fatal error, too bad :P"
+        }
+
         return (
             <ErrorScreen
-            evalFunction={() => {return hasError}}
+            evalFunction={() => {return hasError.minor || hasError.major}}
+            message={errMessage}
             />
         )
     }
@@ -547,10 +573,10 @@ export default function Pokedex() {
     // Pokedex main renderer
     return (
         <div className="Pokedex">
-            { pokemonBasicInfo(pokemonInfo.name !== '' && !isLoading && !hasError) }
-            { pokemonDetails(pokemonInfo.name !== '' && !isLoading && !hasError) }
-            { pokemonMoveList(pokemonInfo.name !== '' && !isLoading && !hasError) }
-            { pokemonSearchBar(true) }
+            { pokemonBasicInfo(pokemonInfo.name !== '' && !isLoading && !hasError.minor && !hasError.major) }
+            { pokemonDetails(pokemonInfo.name !== '' && !isLoading && !hasError.minor && !hasError.major) }
+            { pokemonMoveList(pokemonInfo.name !== '' && !isLoading && !hasError.minor && !hasError.major) }
+            { pokemonSearchBar(true, !hasError.major) }
             { loading() }
             { error() }
         </div>

@@ -1,12 +1,15 @@
 import React from 'react';
 
 export default function ErrorScreen(props) {
-    var { evalFunction } = props;
+    var { 
+        evalFunction = () => {},
+        message = "Oops, couldn't find that Pokémon."
+    } = props;
 
     return (
         evalFunction() ?
         <div className='error'>
-            <h1>Oops, couldn't find that Pokemon.</h1>
+            <h1>{message}</h1>
         </div>
         : null
     )
