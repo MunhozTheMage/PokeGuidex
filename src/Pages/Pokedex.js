@@ -8,9 +8,12 @@ import React, { useState } from 'react';
 //================================================================================
 // Components:                                                                    
 //================================================================================
-import SearchBar from '../Components/SearchBar.js';
 import DropdownInput from '../Components/DropdownInput.js';
-import infoBox from '../Components/InfoBox.js';
+import ErrorScreen from '../Components/ErrorScreen.js';
+import InfoBox from '../Components/InfoBox.js';
+import LoadingScreen from '../Components/LoadingScreen.js';
+import NavArrowButton from '../Components/NavArrowButton.js';
+import SearchBar from '../Components/SearchBar.js';
 
 //================================================================================
 // Services:                                                                      
@@ -21,7 +24,6 @@ import { getPokemon } from '../Services/PokemonAPI.js';
 // Utils:                                                                         
 //================================================================================
 import { capitalizeString, replaceAll, capitalizeAllWords } from '../Utils/StringFunctions.js';
-import InfoBox from '../Components/InfoBox.js';
 
 export default function Pokedex() {
     const defaultPokemonState = { 
@@ -43,14 +45,19 @@ export default function Pokedex() {
     const [isLoading, set_isLoading] = useState(false);
     const [hasError, set_hasError] = useState(false);
 
+    // Called to change the current Pokémon page
     function searchPokemon(searchValue) {
         getPokemon(
         replaceAll(searchValue.toLowerCase(), ' ', '-'), 
         () => {
+            // Removes any error status current active and enables
+            // the loading screen
             set_isLoading(true);
             set_hasError(false);
         }, 
         (data) => {
+            // Clear the current Pokémon object and reset the evolution
+            // pointer to the first evolution
             set_pokemonInfo(defaultPokemonState);
             set_evolutionNav(0);
 
@@ -69,63 +76,101 @@ export default function Pokedex() {
                 minor: {
                     height: (data._info.pokemon.height / 10) + ' m',
                     weight: (data._info.pokemon.weight / 10) + ' kg',
-                    shape: capitalizeAllWords(replaceAll(data._info.species.shape.name, '-', ' ')),
-                    generation: capitalizeAllWords(replaceAll(data._info.species.generation.name, '-', ' ')),
-                    habitat: !(data._info.species.habitat === null) ? capitalizeAllWords(replaceAll(data._info.species.habitat.name, '-', ' ')) : null,
+                    shape: capitalizeAllWords(
+                        replaceAll(data._info.species.shape.name, '-', ' ')
+                    ),
+                    generation: capitalizeAllWords(
+                        replaceAll(data._info.species.generation.name, '-', ' ')
+                    ),
+                    habitat: (
+                    !(data._info.species.habitat === null) ? 
+                    capitalizeAllWords(replaceAll(data._info.species.habitat.name, '-', ' ')) 
+                    : null
+                    ),
                 }
             });
 
+            // Finish loading
             set_isLoading(false);
         },
         (err) => {
+            // Finish loading and enables the error screen
             set_isLoading(false);
             set_hasError(true);
             console.log(err);
         });
     }
 
-    return (
-        <div className="Pokedex">
-                {
-                    // Pokemon Basic Info:
-                }
-                { pokemonInfo.name !== '' && !isLoading && !hasError ?
-                <div className='pokemonBasic'>    
-                    <h1 className='pokemonName'>{pokemonInfo.name}</h1>
-                    <div className='imageBox'>
-                        <img src={pokemonInfo.image} alt={pokemonInfo.name}/>
-                        <div className={pokemonInfo.types.length > 1 ? 'twoTypes' : 'oneType'}>
-                        {
-                            pokemonInfo.types.map((v, i) => {
-                                return (
-                                    <img src={v.img} alt={v.name} key={`${v.name}_${i}`}></img>
-                                )
-                            })
-                        }
-                        </div>
-                    </div>
-                    <div className='flavorTextArea'>
-                        <div className='flavorTexts'>
-                            {pokemonInfo.entries.map((v, i) => <p key={`flavor_text_${i}`}>{v}</p>)}
-                        </div>
+    // Renders the Pokemon Basic Info on the page
+    function pokemonBasicInfo(condition) {
+        // Renders a box containing the Pokémon image and type symbol(s)
+        function basic_pokemonImageBox() {
+            return (
+                <div className='imageBox'>
+                    <img src={pokemonInfo.image} alt={pokemonInfo.name}/>
+                    <div className={pokemonInfo.types.length > 1 ? 'twoTypes' : 'oneType'}>
+                    {
+                        pokemonInfo.types.map((v, i) => {
+                            // For each type of this Pokémon, render one Type Symbol image
+                            return (
+                                <img src={v.img} alt={v.name} key={`${v.name}_${i}`}></img>
+                            )
+                        })
+                    }
                     </div>
                 </div>
-                : null}
+            );
+        }
 
-                {
-                    // Pokemon Other Info:
-                }
+        // Renders a box containing all flavor texts for this Pokémon
+        function basic_flavorTextArea() {
+            return (
+                <div className='flavorTextArea'>
+                    <div className='flavorTexts'>
+                        {
+                        // Renders all the flavor texts for the current Pokémon
+                        pokemonInfo.entries.map((v, i) => <p key={`flavor_text_${i}`}>{v}</p>)
+                        }
+                    </div>
+                </div>
+            )
+        }
 
-                {pokemonInfo.name !== '' && !isLoading && !hasError ? 
-                    <div className='pokemonOtherInfo'>
+        return ( 
+            condition ?
+                <div className='pokemonBasic'>    
+                    <h1 className='pokemonName'>{pokemonInfo.name}</h1>
+                    { basic_pokemonImageBox() }
+                    { basic_flavorTextArea() }
+                </div>
+            : null
+        );
+    }
 
-                        <InfoBox 
-                        title='Base Stats:'
-                        content={
-                            <div className='stats'>
-                                <table className='statsTable'>
-                                <tbody>
+    // Renders an area full of InfoBox containing various informations
+    function pokemonDetails(condition) {
+        // Renders a InfoBox component
+        function details_renderInfoBox(condition = true, title = '', className = '', content) {
+            return (
+                condition ?
+                <InfoBox
+                title={title}
+                className={className}
+                content={content}
+                />
+                : null
+            )
+        }
+
+        // Renders an InfoBox containing a table of stats
+        function details_baseStats() {
+            function content() {
+                return (
+                    <div className='stats'>
+                        <table className='statsTable'>
+                            <tbody>
                                 {pokemonInfo.stats.map((v) => {
+                                    // For each stat create a new table row
                                     return (
                                         <tr key={v.name + '_stat'}>
                                             <th className='statName'>{v.name}</th>
@@ -133,23 +178,36 @@ export default function Pokedex() {
                                         </tr>
                                     ) 
                                 })}
-                                </tbody>
-                                </table>
-                            </div> 
-                        }
-                        />
+                            </tbody>
+                        </table>
+                    </div>
+                );
+            }
 
-                        <InfoBox 
-                        title='Pokemon Info:'
-                        content={
-                            <div className='pokemonDetails'>
-                                <table className='detailsTable'>
-                                <tbody>
+            return details_renderInfoBox(
+                true, 
+                'Base Stats:',
+                '',
+                content()
+            )
+        }
+
+        // Renders an InfoBox containing a table of misc information
+        function details_about() {
+            function content() {
+                return (
+                    <div className='pokemonDetails'>
+                        <table className='detailsTable'>
+                            <tbody>
                                     <tr>
-                                        <th className='statName'>{pokemonInfo.types.length === 1 ? "Type:" : "Types:"}</th>
+                                        <th className='statName'>
+                                        {pokemonInfo.types.length === 1 ? "Type:" : "Types:"}
+                                        </th>
                                         <th className='statVal'>{pokemonInfo.types.length === 1 ? 
                                         capitalizeString(pokemonInfo.types[0].name) : 
-                                        capitalizeString(pokemonInfo.types[0].name) + ' & ' + capitalizeString(pokemonInfo.types[1].name)}
+                                        capitalizeString(pokemonInfo.types[0].name) 
+                                        + ' & ' + 
+                                        capitalizeString(pokemonInfo.types[1].name)}
                                         </th>
                                     </tr>
                                     <tr>
@@ -168,207 +226,297 @@ export default function Pokedex() {
                                         <th className='statName'>Generation:</th>
                                         <th className='statVal'>{pokemonInfo.minor.generation}</th>
                                     </tr>
-                                    {pokemonInfo.minor.habita === null ?
                                     <tr> 
                                         <th className='statName'>Habitat:</th>
                                         <th className='statVal'>{pokemonInfo.minor.habitat}</th>
                                     </tr>
-                                    : null}
-                                </tbody>
-                                </table>
-                            </div> 
-                        }
-                        />
-
-                        {pokemonInfo.hasPreEvolution ? 
-                        <InfoBox 
-                        title='Evolves From:'
-                        content={(
-                            <div className='preEvolution'>
-                                <h4>{`${capitalizeString(pokemonInfo.preEvolution.name)} (${pokemonInfo.preEvolution.id})`}</h4>
-                                <div className='imageBox'>
-                                    <img src={pokemonInfo.preEvolution.img} alt={pokemonInfo.preEvolution.name}/>
-                                </div>
-                                <button onClick={() => {searchPokemon(pokemonInfo.preEvolution.id.toString())}}>View More</button>
-                            </div>
-                        )}
-                        className={!pokemonInfo.hasEvolution ? 'doubleSpace' : ''}
-                        />
-                        : null}
-
-                        {pokemonInfo.hasEvolution ? 
-                        <InfoBox 
-                        title='Evolves To:'
-                        content={(
-                            <div className='evolution'>
-                                {pokemonInfo.evolution.length > 1 ? 
-                                <button 
-                                className={evolutionNav > 0 ? 'navButton navButtonActive' : 'navButton navButtonInactive'}
-                                onClick={evolutionNav > 0 ?
-                                () => {
-                                    set_evolutionNav(evolutionNav - 1);
-                                }
-                                : () => {}}
-                                >{'<'}</button> 
-                                : null}
-
-                                <div className='evolutionContent'>
-                                    <h4>{`${capitalizeString(pokemonInfo.evolution[evolutionNav].name)} (${pokemonInfo.evolution[evolutionNav].id})`}</h4>
-                                    <div className='imageBox'>
-                                        <img src={pokemonInfo.evolution[evolutionNav].img} alt={pokemonInfo.evolution[evolutionNav].name}/>
-                                    </div>
-                                    <button onClick={() => {searchPokemon(pokemonInfo.evolution[evolutionNav].id.toString())}}>View More</button>
-                                </div>
-                                
-                                {pokemonInfo.evolution.length > 1 ? 
-                                <button 
-                                className={evolutionNav < pokemonInfo.evolution.length - 1 ? 'navButton navButtonActive' : 'navButton navButtonInactive'}
-                                onClick={evolutionNav < pokemonInfo.evolution.length - 1 ?
-                                () => {
-                                    set_evolutionNav(evolutionNav + 1);
-                                }
-                                : () => {}}
-                                >{'>'}</button> 
-                                : null}
-                            </div>
-                        )}
-                        className={!pokemonInfo.hasPreEvolution ? 'doubleSpace' : ''}
-                        />
-                        : null}
-
-                        {pokemonInfo.hasEvolution ? 
-                        <InfoBox 
-                        title='How To Evolve:'
-                        content={(
-                            <div className='evolutionGuide'>
-                                {pokemonInfo.evolution.length > 1 ? 
-                                <button 
-                                className={evolutionNav > 0 ? 'navButton navButtonActive' : 'navButton navButtonInactive'}
-                                onClick={evolutionNav > 0 ?
-                                () => {
-                                    set_evolutionNav(evolutionNav - 1);
-                                }
-                                : () => {}}
-                                >{'<'}</button> 
-                                : null}
-
-                                <div className='evolutionGuideContent'>
-                                    <h4>{
-                                    `${capitalizeAllWords(pokemonInfo.name.split(' ').slice(0, -1).join(' '))} > 
-                                    ${capitalizeAllWords(pokemonInfo.evolution[evolutionNav].name)}`
-                                    }</h4>
-                                    <div className='evolutionMethods'>
-                                        {
-                                            pokemonInfo.evolution_method[pokemonInfo.evolution[evolutionNav].name.toLowerCase()].map((v, i) => {
-                                                return <p key={`evo_guide_${i}`}>{v}</p>
-                                            })
-                                        }
-                                    </div>
-                                </div>
-                                
-                                {pokemonInfo.evolution.length > 1 ? 
-                                <button 
-                                className={evolutionNav < pokemonInfo.evolution.length - 1 ? 'navButton navButtonActive' : 'navButton navButtonInactive'}
-                                onClick={evolutionNav < pokemonInfo.evolution.length - 1 ?
-                                () => {
-                                    set_evolutionNav(evolutionNav + 1);
-                                }
-                                : () => {}}
-                                >{'>'}</button> 
-                                : null}
-                            </div>
-                        )}
-                        className='doubleSpace'
-                        />
-                        : null}
-                    </div>
-                : null}
-
-                {
-                    //Pokemon Move List:
-                }
-
-                { pokemonInfo.name !== '' && !isLoading && !hasError ?
-                <div className='moveList'>
-                    <div className='moveNavigation'>
-                        <DropdownInput 
-                            label='Game'
-                            keyPrefix='game_id'
-                            setValue={set_gameSelectValue}
-                            value={gameSelectValue}
-                            choices={Object.keys(pokemonInfo.moves)}
-                        />
-                    </div>
-                    { gameSelectValue !== '' && !!pokemonInfo.moves[gameSelectValue] ?
-                    <div className='moves'>
-                    {
-                    Object.keys(pokemonInfo.moves[gameSelectValue]).map((v, i) => {
-                        if(v === "Level Up") {
-                            return (
-                                <div className='moveCategory' key={`${replaceAll(v.toLowerCase(), ' ', '-')}_${i}`}>
-                                    <h2>{v}</h2>
-                                    {
-                                        pokemonInfo.moves[gameSelectValue][v].map((v, i) => {
-                                            return (
-                                                <div className='moveBox' key={`${replaceAll(v.name.toLowerCase(), ' ', '_')}_${i}`}>
-                                                    {v.level > 0 ?
-                                                    <div className='levelBox'>
-                                                        <p>{v.level}</p>
-                                                    </div>
-                                                    : null}
-                                                    <p>{v.name}</p>
-                                                </div>
-                                            )
-                                        })
-                                    }
-                                </div>
-                            )
-                        }
-                    })
-                }
-
-                {
-                    Object.keys(pokemonInfo.moves[gameSelectValue]).map((v, i) => {
-                        if(v !== "Level Up") {
-                            return (
-                                <div className='moveCategory' key={`${replaceAll(v.toLowerCase(), ' ', '-')}_${i}`}>
-                                    <h2>{v}</h2>
-                                    {
-                                        pokemonInfo.moves[gameSelectValue][v].map((v, i) => {
-                                            return (
-                                                <div className='moveBox' key={`${replaceAll(v.name.toLowerCase(), ' ', '_')}_${i}`}>
-                                                    <p>{v.name}</p>
-                                                </div>
-                                            )
-                                        })
-                                    }
-                                </div>
-                            )
-                        }
-                    })
-                }
-                    </div>
-                    : null }
-                </div>
-                : null}
-            
-
-            {
-                // Pokedex Search Bar:
+                            </tbody>
+                        </table>
+                    </div> 
+                )
             }
 
-            { isLoading ?
-            <div className='loading'>
-                <h1>Loading...</h1>
-            </div>
-            : null}
+            return details_renderInfoBox(
+                true,
+                `About This Pokemon:`,
+                '',
+                content()
+            );
+        }
 
-            { hasError ?
-            <div className='error'>
-                <h1>Oops, couldn't find that Pokemon.</h1>
-            </div>
-            : null}
+        // Renders an InfoBox containing the Pokémon that evolves to this one,
+        // if there isn't any, it won't render anythig
+        function details_evolvesFrom() {
+            function content() {
+                return (
+                    <div className='preEvolution'>
+                        <h4>
+                        {
+                        `${pokemonInfo.preEvolution.name}`+
+                        ` (${pokemonInfo.preEvolution.id})`
+                        }
+                        </h4>
+                        <div className='imageBox'>
+                            <img 
+                            src={pokemonInfo.preEvolution.img} 
+                            alt={pokemonInfo.preEvolution.name}
+                            />
+                        </div>
+                        <button 
+                        onClick={() => {searchPokemon(pokemonInfo.preEvolution.id.toString())}}
+                        >View More</button>
+                    </div>
+                );
+            }
 
+            return details_renderInfoBox(
+                pokemonInfo.hasPreEvolution,
+                'Evolves From:',
+                !pokemonInfo.hasEvolution ? 'doubleSpace' : '',
+                content()
+            )
+        }
+
+        // Renders an InfoBox containing the Pokémons that evolves from this one,
+        // if there isn't any, it won't show anything, if there is more than one,
+        // it will render NavArrowButtons to change the current content to another
+        // Pokémon that also evolves from this one.
+        function details_evolvesTo() {
+            function content() {
+                return (
+                    <div className='evolution'>
+                        {pokemonInfo.evolution.length > 1 ? 
+                            <NavArrowButton
+                            modifier={-1}
+                            currentValue={evolutionNav}
+                            set={set_evolutionNav}
+                            limitValue={0}
+                            />
+                        : null}
+
+                        <div className='evolutionContent'>
+                            <h4>{
+                            `${capitalizeString(pokemonInfo.evolution[evolutionNav].name)}`+
+                            ` (${pokemonInfo.evolution[evolutionNav].id})`
+                            }</h4>
+                            <div className='imageBox'>
+                                <img 
+                                src={pokemonInfo.evolution[evolutionNav].img} 
+                                alt={pokemonInfo.evolution[evolutionNav].name}/>
+                            </div>
+                            <button 
+                            onClick={() => {
+                                searchPokemon(pokemonInfo.evolution[evolutionNav].id.toString())
+                            }}
+                            >View More</button>
+                        </div>
+                                
+                        {pokemonInfo.evolution.length > 1 ? 
+                            <NavArrowButton
+                            currentValue={evolutionNav}
+                            set={set_evolutionNav}
+                            limitValue={pokemonInfo.evolution.length - 1}
+                            />
+                        : null}
+                    </div>
+                );
+            }
+
+            return details_renderInfoBox(
+                pokemonInfo.hasEvolution,
+                'Evolves To:',
+                !pokemonInfo.hasPreEvolution ? 'doubleSpace' : '',
+                content()
+            );
+        }
+
+        // Renders an InfoBox containing a guide on how to evolve this Pokémon,
+        // if there isn't any evolution, it won't show anything, if there is more
+        // than one it will render NavArrowButtons to change the current content
+        // to another Pokémon that also evolves from this one.
+        function details_evolutionGuide() {
+            function content() {
+                return (
+                    <div className='evolutionGuide'>
+                        {pokemonInfo.evolution.length > 1 ? 
+                            <NavArrowButton
+                            modifier={-1}
+                            currentValue={evolutionNav}
+                            set={set_evolutionNav}
+                            limitValue={0}
+                            />
+                        : null}
+
+                        <div className='evolutionGuideContent'>
+                            <h4>{
+                            `${capitalizeAllWords(pokemonInfo.name.split(' ').slice(0, -1).join(' '))}`+ 
+                            `  >  ${capitalizeAllWords(pokemonInfo.evolution[evolutionNav].name)}`
+                            }</h4>
+                            <div className='evolutionMethods'>
+                                {
+                                    pokemonInfo.evolution_method[
+                                        pokemonInfo.evolution[evolutionNav].name.toLowerCase()
+                                    ].map((v, i) => {
+                                        return <p key={`evo_guide_${i}`}>{v}</p>
+                                    })
+                                }
+                            </div>
+                        </div>
+                            
+                        {pokemonInfo.evolution.length > 1 ? 
+                            <NavArrowButton
+                            currentValue={evolutionNav}
+                            set={set_evolutionNav}
+                            limitValue={pokemonInfo.evolution.length - 1}
+                            />
+                        : null}
+                    </div>
+                );
+            }
+
+            return details_renderInfoBox(
+                pokemonInfo.hasEvolution,
+                'How to Evolve:',
+                'doubleSpace',
+                content()
+            );
+        }
+
+        return (
+            condition ? 
+            <div className='pokemonOtherInfo'>
+                { details_baseStats() }
+                { details_about() }
+                { details_evolvesFrom() }
+                { details_evolvesTo() }
+                { details_evolutionGuide() }
+            </div>
+            : null
+        );
+    }
+
+    function pokemonMoveList(condition) {
+
+        function move_navigation() {
+            return (
+                <div className='moveNavigation'>
+                    <DropdownInput 
+                        label='Game'
+                        keyPrefix='game_id'
+                        setValue={set_gameSelectValue}
+                        value={gameSelectValue}
+                        choices={Object.keys(pokemonInfo.moves)}
+                    />
+                </div>
+            );
+        }
+
+        function move_moveList() {
+
+            function move_list_levelUpCategory() {
+                function move_list_level_moveBox(move, index) {
+                    return (
+                        <div 
+                        className='moveBox' 
+                        key={
+                        `${replaceAll(move.name.toLowerCase(), ' ', '_')}_${index}`
+                        }
+                        >
+                            {move.level > 0 ?
+                                <div className='levelBox'>
+                                    <p>{move.level}</p>
+                                </div>
+                            : null}
+                            <p>{move.name}</p>
+                        </div>
+                    );
+                }
+
+                return Object.keys(pokemonInfo.moves[gameSelectValue])
+                .map((v, i) => {
+                    if(v === "Level Up") {
+                        return (
+                            <div 
+                            className='moveCategory' 
+                            key={`${replaceAll(v.toLowerCase(), ' ', '-')}_${i}`}
+                            >
+                                <h2>{v}</h2>
+                                {
+                                    // Renders a levelMoveBox for all the moves in the Lavel Up category
+                                    // for the game that is currently selected in the dropdown field
+                                    pokemonInfo.moves[gameSelectValue][v].map((v, i) => {
+                                        return (
+                                            move_list_level_moveBox(v, i)
+                                        )
+                                    })
+                                }
+                            </div>
+                        )
+                    }
+                });
+            }
+
+            function move_list_otherCategories() {
+                function move_list_other_moveBox(move, index) {
+                    return (
+                        <div 
+                        className='moveBox' 
+                        key={
+                        `${replaceAll(move.name.toLowerCase(), ' ', '_')}_${index}`
+                        }
+                        >
+                            <p>{move.name}</p>
+                        </div>
+                    );
+                }
+
+                return Object.keys(pokemonInfo.moves[gameSelectValue])
+                .map((v, i) => {
+                    if(v !== "Level Up") {
+                        return (
+                            <div 
+                            className='moveCategory' 
+                            key={`${replaceAll(v.toLowerCase(), ' ', '-')}_${i}`}
+                            >
+                                <h2>{v}</h2>
+                                {
+                                    pokemonInfo.moves[gameSelectValue][v].map((v, i) => {
+                                        return (
+                                            // Renders a moveBox for all the moves in all categories (except
+                                            // the Level Up category) for the game that is currently
+                                            move_list_other_moveBox(v, i)
+                                        )
+                                    })
+                                }
+                            </div>
+                        )
+                    }
+                });
+            }
+
+            return (
+                <div className='moves'>
+                { move_list_levelUpCategory() }
+                { move_list_otherCategories() }
+                </div>
+            );
+        }
+
+        return (
+            condition ?
+            <div className='moveList'>
+                { move_navigation() }
+                {gameSelectValue !== '' && !!pokemonInfo.moves[gameSelectValue] ?
+                    move_moveList()
+                : null }
+            </div>
+            : null
+        )
+    }
+
+    function pokemonSearchBar(condition) {
+        return (
+            condition ?
             <div className='searchBarArea'>
                 <SearchBar 
                 label='Type the Pokemon name or number'
@@ -376,7 +524,35 @@ export default function Pokedex() {
                 onclick={searchPokemon}
                 />
             </div>
+            : null
+        );
+    }
 
+    function loading() {
+        return (
+        <LoadingScreen 
+        evalFunction={() => {return isLoading}}
+        />
+        )
+    }
+
+    function error() {
+        return (
+            <ErrorScreen
+            evalFunction={() => {return hasError}}
+            />
+        )
+    }
+
+    // Pokedex main renderer
+    return (
+        <div className="Pokedex">
+            { pokemonBasicInfo(pokemonInfo.name !== '' && !isLoading && !hasError) }
+            { pokemonDetails(pokemonInfo.name !== '' && !isLoading && !hasError) }
+            { pokemonMoveList(pokemonInfo.name !== '' && !isLoading && !hasError) }
+            { pokemonSearchBar(true) }
+            { loading() }
+            { error() }
         </div>
     );
 }
