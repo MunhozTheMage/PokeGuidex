@@ -44,6 +44,15 @@ export default class Pokemon {
     }
 
     getImage(id = this._info.pokemon.id) {
+        if(id <= 807) {
+            let threeDigitId = '' + id;
+            while(threeDigitId.length < 3)
+            {
+                threeDigitId = '0' + threeDigitId;
+            }
+            return `https://raw.githubusercontent.com/HybridShivam/Pokemon/master/assets/images/${threeDigitId}.png`;
+        }
+
         return `https://cdn.traction.one/pokedex/pokemon/${id}.png`;
     }
 

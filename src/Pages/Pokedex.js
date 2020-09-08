@@ -18,7 +18,7 @@ import SearchBar from '../Components/SearchBar.js';
 //================================================================================
 // Services:                                                                      
 //================================================================================
-import { getPokemon, getNamesList, findPokemon } from '../Services/PokemonAPI.js';
+import { getPokemon, getNamesList, findPokemon, checkImageExistence } from '../Services/PokemonAPI.js';
 
 //================================================================================
 // Utils:                                                                         
@@ -50,12 +50,10 @@ export default function Pokedex() {
         getNamesList(
         (list) => {
             set_pokemonNamesList(list);
-            console.log(list);
             set_isLoading(false);
         }, 
         (err) => {
             set_isLoading(false);
-            console.log(err);
             set_hasError({minor: false, major: true});
         })
     }, [])
@@ -271,7 +269,7 @@ export default function Pokedex() {
                     <div className='preEvolution'>
                         <h4>
                         {
-                        `${pokemonInfo.preEvolution.name}`+
+                        `${capitalizeAllWords(pokemonInfo.preEvolution.name)}`+
                         ` (${pokemonInfo.preEvolution.id})`
                         }
                         </h4>
